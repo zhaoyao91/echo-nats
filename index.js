@@ -14,5 +14,5 @@ natsClient.on('connect', () => {
 })
 
 natsClient.subscribe('>', (message, reply, subject) => {
-  logger.info({msg: 'message received', message: {subject, message, reply}})
+  logger.info({msg: 'message received', message: {subject, content: message, reply}})
 })
