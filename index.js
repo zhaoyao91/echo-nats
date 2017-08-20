@@ -1,19 +1,28 @@
 require('checkenv').check()
 
-const nats = require('nats')
-const logger = require('env-pino')
+const NATS = require('nats')
+const pickBy = require('lodash.pickby')
 
 const {NATS_URL, SUBJECT} = process.env
 
-const natsClient = nats.connect(NATS_URL)
+const options = {
+  url: NATS_URL,
+  maxReconnectAttempts: -1, // infinite
+}
 
-natsClient
-  .on('error', err => logger.error(err))
-  .on('connect', () => logger.info({msg: 'connected', url: NATS_URL}))
-  .on('disconnect', () => logger.info('disconnected'))
-  .on('reconnecting', () => logger.info('reconnecting'))
-  .on('close', () => logger.info('closed'))
+const nats = NATS.connect(options)
 
-natsClient.subscribe(SUBJECT, (message, reply, subject) => {
-  logger.info({msg: 'message received', message: {subject, content: message, reply}})
+// define default event handlers
+nats.on('error', (err) => {
+  console.error(err)
+  process.exit(-1)
+})
+nats.on('connect', () => console.log('nats connected'))
+nats.on('disconnect', () => console.log('nats disconnected'))
+nats.on('reconnecting', () => console.log('nats reconnecting'))
+nats.on('reconnect', () => console.log('nats reconnected'))
+nats.on('close', () => console.log('nats connection closed'))
+
+nats.subscribe(SUBJECT, (message, reply, subject) => {
+  console.log('message received:', pickBy({subject, content: message, reply}, value => value !== undefined))
 })
