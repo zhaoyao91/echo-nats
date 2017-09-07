@@ -1,5 +1,6 @@
 require('checkenv').check()
 
+const logger = require('env-pino')
 const NATS = require('nats')
 const pickBy = require('lodash.pickby')
 
@@ -14,15 +15,15 @@ const nats = NATS.connect(options)
 
 // define default event handlers
 nats.on('error', (err) => {
-  console.error(err)
+  logger.error(err)
   process.exit(-1)
 })
-nats.on('connect', () => console.log('nats connected'))
-nats.on('disconnect', () => console.log('nats disconnected'))
-nats.on('reconnecting', () => console.log('nats reconnecting'))
-nats.on('reconnect', () => console.log('nats reconnected'))
-nats.on('close', () => console.log('nats connection closed'))
+nats.on('connect', () => logger.info('nats connected'))
+nats.on('disconnect', () => logger.info('nats disconnected'))
+nats.on('reconnecting', () => logger.info('nats reconnecting'))
+nats.on('reconnect', () => logger.info('nats reconnected'))
+nats.on('close', () => logger.info('nats connection closed'))
 
 nats.subscribe(SUBJECT, (message, reply, subject) => {
-  console.log('message received:', pickBy({subject, content: message, reply}, value => value !== undefined))
+  logger.info('message received', pickBy({subject, content: message, reply}, value => value !== undefined))
 })
