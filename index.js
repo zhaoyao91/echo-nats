@@ -1,6 +1,6 @@
 require('checkenv').check()
 
-const logger = require('env-pino')
+const logger = require('simple-json-logger')
 const NATS = require('nats')
 const pickBy = require('lodash.pickby')
 
